@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+    php-fpm:
+        build: ./php-fpm
+        volumes:
+            - ./www:/var/www
+            - ./www_front:/var/www_front
+            - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - internal
+
+    nginx:
+        image: nginx:latest
+        environment:
+            WSL_IP: ${WSL_IP}
+        volumes:
+            - ./www:/var/www
+            - ./logs:/var/log/nginx
+            #- ./nginx/default.nginx:/etc/nginx/conf.d/default.conf
+            - ./nginx/default.nginx:/etc/nginx/templates/default.conf.template
+        ports:
+            - "80:80"
+        depends_on:
+            - php-fpm
+        networks:
+            - internal
+
+networks:
+    internal:
+        driver: bridge
